@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, Post, UseGuards, HttpException, HttpStatus, Query } from '@nestjs/common';
-import { signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut, sendPasswordResetEmail, UserCredential } from "firebase/auth";
 import { FirebaseAuthGuard } from '../firebase/firebase-auth.guard';
 import auth from "src/auth/firebase/firebaseInit";
 import { Login } from '../Dto/login.request';
@@ -10,11 +10,19 @@ export class AuthController {
     @HttpCode(200)
     async login(@Body() requestBody: Login): Promise<string> {
 
+        let token: any;
+
         if(!requestBody.email || !requestBody.password){
             throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
         }
         
-        const token = await signInWithEmailAndPassword(auth, requestBody.email, requestBody.password);
+        try {
+            token = await signInWithEmailAndPassword(auth, requestBody.email, requestBody.password);
+        } catch (error) {
+            if(error.code == 'auth/user-not-found'){
+                throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+            }
+        }
 
         return token.user.getIdToken();
     }

@@ -1,14 +1,15 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import config from './firebaseConfig';
 
 const firebaseApp = initializeApp({
-    apiKey: "AIzaSyADkPiN1tNqA13BmpN3pzP5l93AgtEIv1c",
-    authDomain: "ambigest-d92a3.firebaseapp.com",
-    projectId: "ambigest-d92a3",
-    storageBucket: "ambigest-d92a3.appspot.com",
-    messagingSenderId: "84678773490",
-    appId: "1:84678773490:web:16f423a185b2f31df2de6b",
-    measurementId: "G-Y83QYL3V7W"
+    apiKey: config.api_key,
+    authDomain: config.auth_domain,
+    projectId: config.project_id,
+    storageBucket: config.storage_bucket,
+    messagingSenderId: config.message_sender_id,
+    appId: config.app_id,
+    measurementId: config.measurement_id
 });
 
 const auth = getAuth(firebaseApp);
