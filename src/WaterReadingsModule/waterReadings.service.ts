@@ -48,17 +48,13 @@ export class WaterReadingsService {
 
     async getAllByUserId(userId: string): Promise<WaterReadingResponse[]>{
         const contract = await this.contractsService.getContractByUserId(userId);
-        console.log("Passa aqui0.5");
 
         if(contract === null) throw new Error("User does not have a water contract plan.");
-        console.log("Passa aqui0");
 
         const result = await this.waterReadingsRepository.getReadingsByUserId(userId);
         console.log("Passa aqui1");
 
-        var output: WaterReadingResponse[];
-
-        console.log("Passa aqui");
+        var output: WaterReadingResponse[] = [];
 
         result.forEach((element) => {
             const reading: WaterReadingResponse = {

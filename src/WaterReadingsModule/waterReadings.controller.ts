@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Body, Param, Res } from '@nestjs/common';
 import { WaterReadingsService } from './waterReadings.service';
-import { WaterReadingResponse } from './Dtos/waterReading.response';
 import { GetReadingsRequest } from './Dtos/get-readings.request';
 import { CreateReadingRequest } from './Dtos/create-reading.request';
 import { ApiParam } from '@nestjs/swagger';
@@ -15,7 +14,7 @@ export class WaterReadingsController {
   async getAllByUserId(@Param() request: GetReadingsRequest, @Res() res: Response) {
     try{
       const result = await this.waterReadingsService.getAllByUserId(request.userId);
-      res.status(200).json(JSON.stringify(result));
+      res.status(200).json(result);
     }catch(error: any){
       res.status(400).json("Error: " + error.message);
 
@@ -26,7 +25,7 @@ export class WaterReadingsController {
   async create(@Body() request: CreateReadingRequest, @Res() res: Response) {
     try{
       const result = await this.waterReadingsService.createReading(request);
-      res.status(200).json(JSON.stringify(result))
+      res.status(200).json(result)
     
     } catch(error: any){
       res.status(400).json("Error: " + error.message);
