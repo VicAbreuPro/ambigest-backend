@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { WaterContractsModule } from './WaterContractsModule/waterContracts.module';
 import { WaterReadingsModule } from './WaterReadingsModule/waterReadings.module';
+import { EventsModule } from './EventsModule/events.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { WaterReadingsModule } from './WaterReadingsModule/waterReadings.module'
     }),
     WaterContractsModule,
     WaterReadingsModule,
+    EventsModule
   ],
   controllers: [AppController],
   providers: [AppService],

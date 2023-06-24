@@ -1,12 +1,10 @@
-import { Inject, Injectable, Module } from '@nestjs/common';
-import { ObjectId } from "mongodb";
+import { Inject, Injectable } from '@nestjs/common';
+import { ObjectId } from 'mongodb';
 import { WaterReadingsRepository } from './waterReadings.repository';
 import { CreateReadingRequest } from './Dtos/create-reading.request';
 import { WaterContractService } from 'src/WaterContractsModule/WaterContracts.Service';
 import { WaterReadingEntity } from './Entities/WaterReading.entity';
 import { WaterReadingResponse } from './Dtos/waterReading.response';
-import { GetReadingsRequest } from './Dtos/get-readings.request';
-import { WaterContractsModule } from 'src/WaterContractsModule/waterContracts.module';
 
 @Injectable()
 export class WaterReadingsService {

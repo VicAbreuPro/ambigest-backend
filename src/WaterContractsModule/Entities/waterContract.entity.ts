@@ -1,5 +1,6 @@
-import { Column, ObjectIdColumn, ObjectId, Entity } from 'typeorm';
+import { Column, ObjectIdColumn, Entity } from 'typeorm';
 import { WaterContractResponseDto } from '../Dtos/water-contract.response';
+import { ObjectId } from 'mongodb'
 
 @Entity()
 export class WaterContractEntity {

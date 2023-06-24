@@ -1,5 +1,6 @@
 import { Double } from 'mongodb';
-import { Column, ObjectIdColumn, ObjectId } from 'typeorm';
+import { Column, ObjectIdColumn} from 'typeorm';
+import { ObjectId } from 'mongodb'
 import {Entity} from 'typeorm';
 import { WaterReadingResponse } from '../Dtos/waterReading.response';
 
