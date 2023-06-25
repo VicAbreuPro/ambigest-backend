@@ -1,5 +1,5 @@
-import { Body, Controller, Get, HttpCode, Post, UseGuards, HttpException, HttpStatus, Query } from '@nestjs/common';
-import { signInWithEmailAndPassword, signOut, sendPasswordResetEmail, UserCredential } from "firebase/auth";
+import { Body, Controller, HttpCode, Post, UseGuards, HttpException, HttpStatus, Query } from '@nestjs/common';
+import { signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
 import { FirebaseAuthGuard } from '../firebase/firebase-auth.guard';
 import auth from "src/auth/firebase/firebaseInit";
 import { Login } from '../Dto/login.request';
