@@ -10,6 +10,10 @@ export class UserController {
     @Get('/')
     @UseGuards(FirebaseAuthGuard)
     async getUserByUsername(@Query('username') username: string): Promise<any> {
+        if(!username){
+            throw new HttpException('username , email and password are required!', HttpStatus.BAD_REQUEST);
+        }
+
         try {
             return await this.UserService.getUser(username);
         } catch (error) {
@@ -19,25 +23,34 @@ export class UserController {
 
     @Post('/')
     async createUser(@Body() user: CreateUserRequestDto): Promise<any> {
-        try {
-            return await this.UserService.createUser(user);
 
-        } catch (error) {
-            if(error == 'FirebaseError: Firebase: Error (auth/email-already-in-use).'){
-                throw new HttpException(error.customData._tokenResponse.error.message, HttpStatus.BAD_REQUEST);
-            }
+    if(!(user.email || user.password || user.username)){
+        throw new HttpException('username , email and password are required!', HttpStatus.BAD_REQUEST);
+    }
 
-            if(error == 'Error: Username already exists'){
-                throw new HttpException('Username already exists', HttpStatus.BAD_REQUEST);
-            }
+    try {
+        return await this.UserService.createUser(user);
 
-            throw new HttpException('Server error: ' + error, HttpStatus.SERVICE_UNAVAILABLE);
+    } catch (error) {
+        if(error == 'FirebaseError: Firebase: Error (auth/email-already-in-use).'){
+            throw new HttpException(error.customData._tokenResponse.error.message, HttpStatus.BAD_REQUEST);
         }
+
+        if(error == 'Error: Username already exists'){
+            throw new HttpException('Username already exists', HttpStatus.BAD_REQUEST);
+        }
+
+        throw new HttpException('Server error: ' + error, HttpStatus.SERVICE_UNAVAILABLE);
+    }
     }
 
     @Put('/')
     @UseGuards(FirebaseAuthGuard)
     async updateUser(@Query('userId') userId: string, @Query('column') column: string, @Query('value') value:string): Promise<any> {
+        if(!(userId || column || value)){
+            throw new HttpException('userId , column and value are required!', HttpStatus.BAD_REQUEST);
+        }
+
         try {
             return await this.UserService.updateUser(userId, column, value);
         } catch (error) {
@@ -52,6 +65,10 @@ export class UserController {
     @HttpCode(204)
     @UseGuards(FirebaseAuthGuard)
     async deleteUser(@Query('userId') userId: string){
+        if(!userId){
+            throw new HttpException('userId is required!', HttpStatus.BAD_REQUEST);
+        }
+
         try {
             return await this.UserService.deleteUser(userId);
         } catch (error) {
