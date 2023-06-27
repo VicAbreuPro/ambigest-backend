@@ -9,7 +9,6 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe())
 
-
   const config = new DocumentBuilder()
     .setTitle('Your API')
     .setDescription('API description')
