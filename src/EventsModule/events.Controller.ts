@@ -1,67 +1,90 @@
-import { Controller, Get, Post, Put, Body, Param, Res, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Res, Delete, UseGuards, HttpCode, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateEventRequestDto } from './Dtos/create-event.request';
 import { EventsService } from './events.Service';
-import { Response } from 'express'
 import { UpdateEventRequestDto } from './Dtos/update-event.request';
 import { ApiParam } from '@nestjs/swagger';
 import { getEventsByUserId } from './Dtos/get-events-by-uid.request';
 import { GetEventById } from './Dtos/get-event-by-id.request';
 import { DeleteEventByIdDto } from './Dtos/delete-event-by-id.request';
+import { FirebaseAuthGuard } from 'src/auth/firebase/firebase-auth.guard';
 
 @Controller('events')
 export class EventsController { 
     constructor(private readonly eventsService: EventsService) {}
 
     @Post('createNew')
-    async create(@Body() request: CreateEventRequestDto, @Res() res: Response){
+    @UseGuards(FirebaseAuthGuard)
+    @HttpCode(204)
+    async create(@Body() request: CreateEventRequestDto): Promise<any>{
         try{
             var result = await this.eventsService.createEvent(request)
-            res.status(200).json(result);
+            return result;
 
         } catch(error: any) {
-            res.status(400).json('Error: Error trying to create the event')
+            if(error === 'Date already picked'){
+                throw new HttpException('Date already picked', HttpStatus.BAD_REQUEST);
+            }
+            throw new HttpException('Server error: ' + error, HttpStatus.SERVICE_UNAVAILABLE);
         }
     }
 
     @Put('updateEvent')
-    async update(@Body() request: UpdateEventRequestDto, @Res() res: Response){
+    @UseGuards(FirebaseAuthGuard)
+    @HttpCode(204)
+    async update(@Body() request: UpdateEventRequestDto): Promise<any>{
         try{
             var result = await this.eventsService.updateEvent(request);
-            res.status(200).json(result);
+            return result;
+
         }catch(error: any) {
-            res.status(400).json('Error: Error trying to update the event')
+
+            if(error === 'Wrong id'){
+                throw new HttpException('Wrong event id', HttpStatus.BAD_REQUEST);
+            }
+            else if(error === 'Unavailable date'){
+                throw new HttpException('Unavailable date', HttpStatus.BAD_REQUEST);
+            }
+
+            throw new HttpException('Server error: ' + error, HttpStatus.SERVICE_UNAVAILABLE);
+
         }
     }
 
     @Get('getEventsByUserId/:userId')
+    @UseGuards(FirebaseAuthGuard)
+    @HttpCode(204)
     @ApiParam({ name: 'userId', description: 'User ID', type: String })
-    async getByUserId(@Param() request: getEventsByUserId, @Res() res: Response){
+    async getByUserId(@Param() request: getEventsByUserId): Promise<any>{
         try {
             var result = await this.eventsService.getEventsByUserId(request.userId);
-            res.status(200).json(result);
+            return result;
         }catch(error: any) {
-            res.status(400).json('Error: Error trying to retrieve events');
+            throw new HttpException('Server error: ' + error, HttpStatus.SERVICE_UNAVAILABLE);
         }
     }
 
     @Get('getEventsById/:eventId')
+    @UseGuards(FirebaseAuthGuard)
+    @HttpCode(204)
     @ApiParam({ name: 'eventId', description: 'Event ID', type: String })
-    async getByEventId(@Param() request: GetEventById, @Res() res: Response){
+    async getByEventId(@Param() request: GetEventById): Promise<any>{
         try {
             var result = await this.eventsService.getEventById(request.eventId);
-            res.status(200).json(result);
+            return result;
         }catch(error: any) {
-            res.status(400).json('Error: Error trying to retrieve event');
+            throw new HttpException('Server error: ' + error, HttpStatus.SERVICE_UNAVAILABLE);
         }
     }
 
     @Delete('deleteEventById')
-    async deleteEventById(@Body() request: DeleteEventByIdDto, @Res() res: Response){
+    @UseGuards(FirebaseAuthGuard)
+    @HttpCode(204)
+    async deleteEventById(@Body() request: DeleteEventByIdDto): Promise<any>{
         try {
             await this.eventsService.deleteEventById(request.eventId)
-            res.status(200).json("Deleted");
+            return;
         }catch(error: any) {
-            res.status(400).json(error)
+            throw new HttpException('Server error: ' + error, HttpStatus.SERVICE_UNAVAILABLE);
         }
     }
 

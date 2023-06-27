@@ -1,21 +1,25 @@
-import { Controller, Get, Post, Body, Param, Res } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, HttpCode, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateContractRequest } from './Dtos/create-contract.request';
 import { WaterContractService } from './WaterContracts.Service';
-import { Response } from 'express';
+import { FirebaseAuthGuard } from 'src/auth/firebase/firebase-auth.guard';
 
 @Controller('waterContracts')
 export class WaterContractsController {
   constructor(private readonly waterContractsService: WaterContractService) {}
 
   @Post('createNew')
-  async create(@Body() request: CreateContractRequest, @Res() res: Response){
-
+  @UseGuards(FirebaseAuthGuard)
+  @HttpCode(204)
+  async create(@Body() request: CreateContractRequest): Promise<any>{
     try {
       var result = await this.waterContractsService.createContract(request);
-      res.status(200).json(JSON.stringify(result, null, 2));
-
+      return result;
     } catch (error: any) {
-      res.status(400).json(JSON.stringify("Error: user already has a contract"));
+        if(error === 'User already has a contract'){
+          throw new HttpException('User already has a contract', HttpStatus.BAD_REQUEST);
+        }
+
+        throw new HttpException('Server error: ' + error, HttpStatus.SERVICE_UNAVAILABLE);
     }
   }
 }

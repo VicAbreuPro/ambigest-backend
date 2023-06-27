@@ -19,19 +19,24 @@ export class WaterContractService {
 
     async createContract(request: CreateContractRequest): Promise<WaterContractResponseDto>{
         
-        const existent = await this.waterContractRepository.getContractByUserId(request.userId);
-        if(existent !== null) throw new Error('User already has a contract');
+        try{
+            const existent = await this.waterContractRepository.getContractByUserId(request.userId);
+            if(existent !== null) throw new Error('User already has a contract');
+            
+            const toCreate: WaterContractEntity = {
+                id: new ObjectId(),
+                userId: request.userId,
+                valuePerM3: request.valuePerM3,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            } as WaterContractEntity
+            
+            const result = await this.waterContractRepository.createContract(toCreate);
+            
+            return result.toWaterContractResponseDto();
+        }catch(error: any){
+            throw new Error();
+        }
         
-        const toCreate: WaterContractEntity = {
-            id: new ObjectId(),
-            userId: request.userId,
-            valuePerM3: request.valuePerM3,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        } as WaterContractEntity
-        
-        const result = await this.waterContractRepository.createContract(toCreate);
-        
-        return result.toWaterContractResponseDto();
     }
 }

@@ -1,34 +1,46 @@
-import { Controller, Get, Post, Body, Param, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Res, UseGuards, HttpCode, HttpStatus, HttpException } from '@nestjs/common';
 import { WaterReadingsService } from './waterReadings.service';
 import { GetReadingsRequest } from './Dtos/get-readings.request';
 import { CreateReadingRequest } from './Dtos/create-reading.request';
 import { ApiParam } from '@nestjs/swagger';
-import { Response } from 'express';
+import { FirebaseAuthGuard } from 'src/auth/firebase/firebase-auth.guard';
 
 @Controller('waterReadings')
 export class WaterReadingsController {
   constructor(private readonly waterReadingsService: WaterReadingsService) {}
 
   @Get('getAllByUserId/:userId')
+  @UseGuards(FirebaseAuthGuard)
+  @HttpCode(204)
   @ApiParam({ name: 'userId', description: 'User ID', type: String })
-  async getAllByUserId(@Param() request: GetReadingsRequest, @Res() res: Response) {
+  async getAllByUserId(@Param() request: GetReadingsRequest): Promise<any> {
     try{
       const result = await this.waterReadingsService.getAllByUserId(request.userId);
-      res.status(200).json(result);
+      return result;
     }catch(error: any){
-      res.status(400).json("Error: " + error.message);
-
+      if(error === 'User does not have a water contract plan.'){
+        throw new HttpException('User does not have a water reading plan', HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException('Server error: ' + error, HttpStatus.SERVICE_UNAVAILABLE);
     }
   }
 
   @Post('createNewReading')
-  async create(@Body() request: CreateReadingRequest, @Res() res: Response) {
+  @UseGuards(FirebaseAuthGuard)
+  @HttpCode(204)
+  async create(@Body() request: CreateReadingRequest): Promise<any> {
     try{
       const result = await this.waterReadingsService.createReading(request);
-      res.status(200).json(result)
+      return result;
     
     } catch(error: any){
-      res.status(400).json("Error: " + error.message);
+      if(error === 'User does not have any contract.'){
+        throw new HttpException('User does not have a water reading plan', HttpStatus.BAD_REQUEST);
+      }
+      else if(error === 'User already registered a reading this month.'){
+        throw new HttpException('User already registered a reading this month.', HttpStatus.BAD_REQUEST);
+      }
+      throw new HttpException('Server error: ' + error, HttpStatus.SERVICE_UNAVAILABLE);
     }
   }
 }

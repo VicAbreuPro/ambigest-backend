@@ -49,7 +49,7 @@ export class EventsService {
 
             return output;
         }catch(error: any){
-            console.log(error);
+            throw new Error();
         }
     }
 
@@ -71,7 +71,7 @@ export class EventsService {
     
             return output;
         }catch(error: any){
-            console.log("ERROR: ", error);
+            throw new Error();
         }
     }
 
@@ -79,7 +79,6 @@ export class EventsService {
         
         try{
             const event = await this.eventsRepository.getEventById(new ObjectId(eventId));
-
 
             if(event === null) return new EventResponse()
 
@@ -96,8 +95,7 @@ export class EventsService {
     
             return output;
         }catch(error: any){
-            console.log("ERROR: ", error);
-
+            throw new Error();
         }
         
     }
@@ -107,7 +105,7 @@ export class EventsService {
             await this.eventsRepository.DeleteEvent(new ObjectId(eventId));
             return;
         }catch(error: any){
-            console.log("ERROR: ", error);
+            throw new Error();
         }
     }
 
@@ -141,7 +139,7 @@ export class EventsService {
     
             return output;
         }catch(error: any){
-            console.log("ERROR: ", error);
+            throw new Error();
         }
         
 
