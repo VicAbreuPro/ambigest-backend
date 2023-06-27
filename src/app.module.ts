@@ -8,6 +8,7 @@ import { UserModule } from './User/user.module';
 import { AuthModule } from './auth/auth.module';
 import { WaterContractsModule } from './WaterContracts/waterContracts.module';
 import { WaterReadingsModule } from './WaterReadingsModule/waterReadings.module';
+import { EventsModule } from './EventsModule/events.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { WaterReadingsModule } from './WaterReadingsModule/waterReadings.module'
     AuthModule,
     UserModule,
     WaterContractsModule,
-    WaterReadingsModule
+    WaterReadingsModule,
+    EventsModule
   ],
   controllers: [AppController, AuthController],
   providers: [AppService, FirebaseAuthStrategy],
