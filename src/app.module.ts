@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './User/user.module';
 import { WaterContractsModule } from './WaterContractsModule/waterContracts.module';
+import { WaterReadingsModule } from './WaterReadingsModule/waterReadings.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { WaterContractsModule } from './WaterContractsModule/waterContracts.modu
       autoLoadEntities: true,
     }),
     UserModule,
-    WaterContractsModule
+    WaterContractsModule,
+    WaterReadingsModule
   ],
   controllers: [AppController, AuthController],
   providers: [AppService, FirebaseAuthStrategy],
