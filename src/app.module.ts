@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './User/user.module';
 import { AuthModule } from './auth/auth.module';
 import { WaterContractsModule } from './WaterContractsModule/waterContracts.module';
+import { WaterReadingsModule } from './WaterReadingsModule/waterReadings.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { WaterContractsModule } from './WaterContractsModule/waterContracts.modu
     }),
     AuthModule,
     UserModule,
-    WaterContractsModule
+    WaterContractsModule,
+    WaterReadingsModule
   ],
   controllers: [AppController, AuthController],
   providers: [AppService, FirebaseAuthStrategy],

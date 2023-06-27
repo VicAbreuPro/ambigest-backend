@@ -3,11 +3,11 @@ import { CreateContractRequest } from './Dtos/create-contract.request';
 import { WaterContractService } from './WaterContracts.Service';
 import { FirebaseAuthGuard } from 'src/auth/firebase/firebase-auth.guard';
 
-@Controller('waterContracts')
+@Controller('water-contracts')
 export class WaterContractsController {
   constructor(private readonly waterContractsService: WaterContractService) {}
 
-  @Post('createNew')
+  @Post('/')
   @UseGuards(FirebaseAuthGuard)
   @HttpCode(204)
   async create(@Body() request: CreateContractRequest): Promise<any>{
