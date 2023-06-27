@@ -5,6 +5,7 @@ import { FirebaseAuthStrategy } from './auth/firebase/firebase-auth.strategy';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './User/user.module';
+import { EventsModule } from './EventsModule/events.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { UserModule } from './User/user.module';
       synchronize: false,
       autoLoadEntities: true,
     }),
-    UserModule
+    UserModule,
+    EventsModule
   ],
   controllers: [AppController, AuthController],
   providers: [AppService, FirebaseAuthStrategy],
