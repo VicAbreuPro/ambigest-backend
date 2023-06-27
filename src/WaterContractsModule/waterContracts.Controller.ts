@@ -7,7 +7,7 @@ import { FirebaseAuthGuard } from 'src/auth/firebase/firebase-auth.guard';
 export class WaterContractsController {
   constructor(private readonly waterContractsService: WaterContractService) {}
 
-  @Post('createNew')
+  @Post('create')
   @UseGuards(FirebaseAuthGuard)
   @HttpCode(204)
   async create(@Body() request: CreateContractRequest): Promise<any>{
