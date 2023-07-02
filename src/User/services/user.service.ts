@@ -12,8 +12,8 @@ export class UserService {
         private UserRepository: UserRepository
     ) {}
 
-    async getUser(username: string): Promise<UserEntity>{
-        return await this.UserRepository.getUserByUsername(username);
+    async getUser(email: string): Promise<UserEntity>{
+        return await this.UserRepository.getUser(email);
     }
 
     async createUser(newUser: CreateUserRequestDto): Promise<any>{
@@ -35,8 +35,8 @@ export class UserService {
         return await this.UserRepository.createUser(userWithoutPassword);
     }
 
-    async updateUser(userId: string, column: string, value:string): Promise<any>{
-        const userFromDB = await this.UserRepository.getUserById(userId);
+    async updateUser(email: string, column: string, value:string): Promise<any>{
+        const userFromDB = await this.UserRepository.getUser(email);
 
         if (!userFromDB) {
             throw new Error('User not found');
@@ -44,7 +44,7 @@ export class UserService {
 
         if(column === 'email'){
             // Find the user by current email
-            const userRecord = await admin.auth().getUserByEmail(userFromDB.email);
+            const userRecord = await admin.auth().getUserByEmail(email);
 
             // Update the user's email
             await admin.auth().updateUser(userRecord.uid, {
@@ -54,15 +54,11 @@ export class UserService {
         return await this.UserRepository.updateUserProperty(userFromDB._id, column, value);
     }
 
-    async deleteUser(userId: string): Promise<any>{
-        const userFromDB = await this.UserRepository.getUserById(userId);
+    async deleteUser(firebaseUserId: string, email: string): Promise<any>{
+        const userFromDB = await this.UserRepository.getUser(email);
 
-        // Find the user by email from firebase
-        const userRecord = await admin.auth().getUserByEmail(userFromDB.email);
+        await admin.auth().deleteUser(firebaseUserId);
 
-        // Delete the user
-        await admin.auth().deleteUser(userRecord.uid);
-
-        return await this.UserRepository.deleteUser(userId);
+        return await this.UserRepository.deleteUser(userFromDB._id);
     }
 }

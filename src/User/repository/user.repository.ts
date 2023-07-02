@@ -15,10 +15,10 @@ export class UserRepository {
         });
     }
 
-    async getUserById(userId: string): Promise<UserEntity>{
+    async getUser(email: string): Promise<UserEntity>{
         return await this.dataSource.manager.findOne( UserEntity, {
             where: {
-                _id: new ObjectId(userId)
+                email: email
             }
         });
     }
@@ -53,7 +53,7 @@ export class UserRepository {
         return updatedUser;
     }
 
-    async deleteUser(userId: string){
-        return await this.dataSource.manager.delete(UserEntity, new ObjectId(userId));
+    async deleteUser(userId: ObjectId){
+        return await this.dataSource.manager.delete(UserEntity, userId);
     }
 }

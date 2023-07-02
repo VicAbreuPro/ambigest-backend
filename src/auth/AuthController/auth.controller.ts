@@ -1,30 +1,44 @@
-import { Body, Controller, HttpCode, Post, UseGuards, HttpException, HttpStatus, Query } from '@nestjs/common';
-import { signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
+import { Body, Controller, HttpCode, Post, UseGuards, HttpException, HttpStatus, Query, Headers } from '@nestjs/common';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { FirebaseAuthGuard } from '../firebase/firebase-auth.guard';
-import auth from "src/auth/firebase/firebaseInit";
+import firebaseAuth from "src/auth/firebase/firebaseInit";
 import { Login } from '../Dto/login.request';
+import { auth } from 'firebase-admin';
+
 
 @Controller('auth')
 export class AuthController {
     @Post('/login')
     @HttpCode(200)
-    async login(@Body() requestBody: Login): Promise<string> {
+    async login(@Body() requestBody: Login): Promise<any> {
 
-        let token: any;
+        let token: string;
+        let extractedUserEmail: string;
 
         if(!requestBody.email || !requestBody.password){
             throw new HttpException('Bad Request', HttpStatus.BAD_REQUEST);
         }
         
         try {
-            token = await signInWithEmailAndPassword(auth, requestBody.email, requestBody.password);
+            const userCredential = await signInWithEmailAndPassword(firebaseAuth, requestBody.email, requestBody.password);
+
+            token = await userCredential.user.getIdToken();
+            extractedUserEmail = userCredential.user.email;
+
         } catch (error) {
             if(error.code == 'auth/user-not-found'){
                 throw new HttpException('User not found', HttpStatus.NOT_FOUND);
             }
+
+            throw new HttpException('Server error' + error, HttpStatus.SERVICE_UNAVAILABLE);
         }
 
-        return token.user.getIdToken();
+        let data = {
+            token: token,
+            email: extractedUserEmail
+        };
+          
+        return JSON.stringify(data);
     }
 
     @Post('/recover-password')
@@ -36,7 +50,7 @@ export class AuthController {
         };
         
         try {
-            await sendPasswordResetEmail(auth, email);
+            await sendPasswordResetEmail(firebaseAuth, email);
         } catch (error) {
             if(error.code == 'auth/user-not-found'){
                 throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -50,9 +64,16 @@ export class AuthController {
     @Post('/logout')
     @UseGuards(FirebaseAuthGuard)
     @HttpCode(204)
-    logout(): any {
-        signOut(auth).then(() => {}).catch((error) => {
-            throw new HttpException('Server Error: ' + error, HttpStatus.INTERNAL_SERVER_ERROR);
-        });
+    async logout(@Headers('authorization') authorization: string): Promise<any> {
+        try {
+            const token = authorization.split(' ')[1];
+
+            const decodedToken = await auth().verifyIdToken(token);
+
+            await auth().revokeRefreshTokens(decodedToken.uid);
+        } catch (error) {
+            throw new HttpException('Server error' + error, HttpStatus.SERVICE_UNAVAILABLE);
+        }
+        return '';
     }
 }
