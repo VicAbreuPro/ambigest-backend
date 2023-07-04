@@ -1,14 +1,13 @@
-import { Controller, Body, Query, Get, Post, HttpException, HttpStatus, Put, UseGuards, Delete, HttpCode, Headers, Request } from "@nestjs/common";
+import { Controller, Body, Query, Get, Post, HttpException, HttpStatus, Put, UseGuards, Delete, HttpCode, Request } from "@nestjs/common";
 import { UserService } from "../services/user.service";
 import { CreateUserRequestDto } from "../Dtos/create-users.request";
 import { FirebaseAuthGuard } from "src/auth/firebase/firebase-auth.guard";
-import { auth } from 'firebase-admin';
 
 @Controller('user')
 export class UserController {
     constructor(private UserService: UserService){}
 
-    @Get('/')
+    @Get('/me')
     @UseGuards(FirebaseAuthGuard)
     async getUser(@Request() req: any ): Promise<any> {
         try {
@@ -20,13 +19,8 @@ export class UserController {
 
     @Post('/')
     async createUser(@Body() user: CreateUserRequestDto): Promise<any> {
-
-        if(!(user.email || user.password || user.username)){
-            throw new HttpException('username , email and password are required!', HttpStatus.BAD_REQUEST);
-        }
-
         try {
-            return await this.UserService.createUser(user);
+            return await this.UserService.createUserOnFirebase(user);
 
         } catch (error) {
             if(error == 'FirebaseError: Firebase: Error (auth/email-already-in-use).'){
@@ -41,33 +35,31 @@ export class UserController {
         }
     }
 
-    @Put('/')
+    @Put('/username')
     @UseGuards(FirebaseAuthGuard)
-    async updateUser(@Request() req: any, @Query('column') column: string, @Query('value') value:string): Promise<any> {
-        if(!(column || value)){
-            throw new HttpException('column and value are required!', HttpStatus.BAD_REQUEST);
+    async updateUsername(@Request() req: any, @Query('username') username: string): Promise<any> {
+        if(!(username)){
+            throw new HttpException('Username is required!', HttpStatus.BAD_REQUEST);
         }
 
         try {
-            return await this.UserService.updateUser(req.user.email, column, value);
+            return await this.UserService.updateUsername(req.user.email, username);
         } catch (error) {
             if(error == 'Error: User not found'){
                 throw new HttpException('User not found', HttpStatus.NOT_FOUND);
             }
             throw new HttpException('Server error', HttpStatus.SERVICE_UNAVAILABLE);
         }
-
-        return 'ok';
     }
 
-    @Delete('/')
+    @Delete('/me')
     @HttpCode(204)
     @UseGuards(FirebaseAuthGuard)
     async deleteUser(@Request() req: any){
         try {
-            return await this.UserService.deleteUser(req.user.uid, req.user.email);
+            await this.UserService.deleteUser(req.user.uid, req.user.email);
         } catch (error) {
-            throw new HttpException('Server error', HttpStatus.SERVICE_UNAVAILABLE);
+            throw new HttpException('Server error' + error, HttpStatus.SERVICE_UNAVAILABLE);
         }
     }
 }

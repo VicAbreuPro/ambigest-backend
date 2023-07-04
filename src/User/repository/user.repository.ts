@@ -34,19 +34,28 @@ export class UserRepository {
         });
     }
 
-    async updateUserProperty(userId: ObjectId, column: string, value: string): Promise<UserEntity>{
+    async updateEmailProperty(userId: ObjectId, email: string): Promise<UserEntity>{
         const user = await this.dataSource.manager.findOne(UserEntity, { where: { _id: new ObjectId(userId) } });
 
         if (!user) {
             throw new Error('User not found');
         }
-
-        if (column == 'username') {
             
-            user.username = value;
-        } else if (column === 'email') {
-            user.email = value;
+        user.email = email;
+
+        const updatedUser = await this.dataSource.manager.save(user);
+
+        return updatedUser;
+    }
+
+    async updateUsernameProperty(userId: ObjectId, username: string): Promise<UserEntity>{
+        const user = await this.dataSource.manager.findOne(UserEntity, { where: { _id: new ObjectId(userId) } });
+
+        if (!user) {
+            throw new Error('User not found');
         }
+            
+        user.username = username;
 
         const updatedUser = await this.dataSource.manager.save(user);
 
