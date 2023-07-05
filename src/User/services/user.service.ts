@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../repository/user.repository';
 import { CreateUserRequestDto } from '../Dtos/create-users.request';
+import { Login } from 'src/auth/Dto/login.request';
 import { UserEntity } from '../models/user.entity';
-import { createUserWithEmailAndPassword, deleteUser, getAuth} from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import auth from "src/auth/firebase/firebaseInit";
 import * as admin from 'firebase-admin';
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 @Injectable()
 export class UserService {
@@ -12,57 +14,68 @@ export class UserService {
         private UserRepository: UserRepository
     ) {}
 
-    async getUser(username: string): Promise<UserEntity>{
-        return await this.UserRepository.getUserByUsername(username);
+    async getUser(email: string): Promise<UserEntity>{
+        return await this.UserRepository.getUser(email);
     }
 
-    async createUser(newUser: CreateUserRequestDto): Promise<any>{
-        const checkUsername = await this.UserRepository.getUserByUsername(newUser.username);
+    async createUserOnDatabase(email: string): Promise<any>{
+        const checkUsername = await this.UserRepository.getUser(email);
 
         if(checkUsername){
             throw new Error('Username already exists');
         }
 
-        // Create User on firebase
-        await createUserWithEmailAndPassword( auth, newUser.email, newUser.password );
+        let username = email.split('@')[0];
 
         // Create user on database
-        let userWithoutPassword = new UserEntity(newUser.username, newUser.email);
-
-        userWithoutPassword.email = newUser.email;
-        userWithoutPassword.username = newUser.username;
+        let userWithoutPassword = new UserEntity(username, email);
 
         return await this.UserRepository.createUser(userWithoutPassword);
     }
 
-    async updateUser(userId: string, column: string, value:string): Promise<any>{
-        const userFromDB = await this.UserRepository.getUserById(userId);
+    async createUserOnFirebase(newUser: CreateUserRequestDto): Promise<any>{
+        // Create User on firebase
+        const user = await createUserWithEmailAndPassword( auth, newUser.email, newUser.password );
+
+        await sendEmailVerification(user.user);
+
+        
+    }
+
+    async updateUserEmail(uid: string, password: string, oldEmail: string, newEmail: string): Promise<any>{
+        const userFromDB = await this.UserRepository.getUser(oldEmail);
 
         if (!userFromDB) {
             throw new Error('User not found');
         }
 
-        if(column === 'email'){
-            // Find the user by current email
-            const userRecord = await admin.auth().getUserByEmail(userFromDB.email);
+        await admin.auth().updateUser(uid, {
+            email: newEmail,
+            emailVerified: false
+        });
 
-            // Update the user's email
-            await admin.auth().updateUser(userRecord.uid, {
-                email: value,
-            });
-        }
-        return await this.UserRepository.updateUserProperty(userFromDB._id, column, value);
+        const user = await signInWithEmailAndPassword(auth, newEmail, password);
+
+        await sendEmailVerification(user.user);
+
+        await this.UserRepository.updateEmailProperty(userFromDB._id, newEmail);
     }
 
-    async deleteUser(userId: string): Promise<any>{
-        const userFromDB = await this.UserRepository.getUserById(userId);
+    async updateUsername(email: string, username: string): Promise<any>{
+        const userFromDB = await this.UserRepository.getUser(email);
 
-        // Find the user by email from firebase
-        const userRecord = await admin.auth().getUserByEmail(userFromDB.email);
+        if (!userFromDB) {
+            throw new Error('User not found');
+        }
 
-        // Delete the user
-        await admin.auth().deleteUser(userRecord.uid);
+        return await this.UserRepository.updateUsernameProperty(userFromDB._id, username);
+    }
 
-        return await this.UserRepository.deleteUser(userId);
+    async deleteUser(firebaseUserId: string, email: string): Promise<any>{
+        const userFromDB = await this.UserRepository.getUser(email);
+
+        await admin.auth().deleteUser(firebaseUserId);
+
+        return await this.UserRepository.deleteUser(userFromDB._id);
     }
 }
