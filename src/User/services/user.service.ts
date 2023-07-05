@@ -3,7 +3,7 @@ import { UserRepository } from '../repository/user.repository';
 import { CreateUserRequestDto } from '../Dtos/create-users.request';
 import { Login } from 'src/auth/Dto/login.request';
 import { UserEntity } from '../models/user.entity';
-import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, verifyBeforeUpdateEmail } from "firebase/auth";
 import auth from "src/auth/firebase/firebaseInit";
 import * as admin from 'firebase-admin';
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -44,6 +44,8 @@ export class UserService {
 
     async updateUserEmail(uid: string, password: string, oldEmail: string, newEmail: string): Promise<any>{
         const userFromDB = await this.UserRepository.getUser(oldEmail);
+
+        await signInWithEmailAndPassword(auth, oldEmail, password);
 
         if (!userFromDB) {
             throw new Error('User not found');
