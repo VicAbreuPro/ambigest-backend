@@ -11,7 +11,9 @@ export class UserController {
     @UseGuards(FirebaseAuthGuard)
     async getUser(@Request() req: any ): Promise<any> {
         try {
-            return await this.UserService.getUser(req.user.email);
+            const user = await this.UserService.getUser(req.user.email);
+
+            return user.username;
         } catch (error) {
             throw new HttpException('Server error' + error, HttpStatus.SERVICE_UNAVAILABLE);
         }

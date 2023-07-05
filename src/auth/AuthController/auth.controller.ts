@@ -6,6 +6,7 @@ import { Login } from '../Dto/login.request';
 import { auth } from 'firebase-admin';
 import { UserService } from 'src/User/services/user.service';
 import { UpdateUserEmailDto } from '../Dto/update-user-email.request';
+import { RecoverUserPasswordDto } from '../Dto/recover-password.request';
 
 
 @Controller('auth')
@@ -31,7 +32,6 @@ export class AuthController {
             }
 
             token = await userCredential.user.getIdToken();
-            extractedUserEmail = userCredential.user.email;
 
         } catch (error) {
             if(error == 'Error: You must verify your email!'){
@@ -46,7 +46,6 @@ export class AuthController {
 
         let data = {
             token: token,
-            email: extractedUserEmail
         };
           
         return JSON.stringify(data);
@@ -54,9 +53,9 @@ export class AuthController {
 
     @Post('/recover-password')
     @HttpCode(204)
-    async changeEmail(@Query('email') email: UpdateUserEmailDto): Promise<any> { 
+    async changeEmail(@Body() requestBody: RecoverUserPasswordDto): Promise<any> { 
         try {
-            await sendPasswordResetEmail(firebaseAuth, email.email);
+            await sendPasswordResetEmail(firebaseAuth, requestBody.email);
         } catch (error) {
             if(error.code == 'auth/user-not-found'){
                 throw new HttpException('', HttpStatus.NO_CONTENT);
@@ -80,7 +79,9 @@ export class AuthController {
             if(error == 'Error: User not found'){
                 throw new HttpException('User not found', HttpStatus.NOT_FOUND);
             }
-            throw new HttpException('Server error', HttpStatus.SERVICE_UNAVAILABLE);
+
+            if(error == 'Error: The email address is already in use by another account.')
+            throw new HttpException('The email address is already in use by another account.' , HttpStatus.FORBIDDEN);
         }
     }
 
