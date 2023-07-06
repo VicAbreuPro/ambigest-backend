@@ -8,7 +8,7 @@ import { UserModule } from './User/user.module';
 import { AuthModule } from './auth/auth.module';
 import { WaterContractsModule } from './WaterContracts/waterContracts.module';
 import { WaterReadingsModule } from './WaterReadingsModule/waterReadings.module';
-import { EventsModule } from './EventsModule/events.module';
+import { WasteCollectionModule } from './WasteCollection/waste-collection.module';
 
 @Module({
   imports: [
@@ -23,10 +23,10 @@ import { EventsModule } from './EventsModule/events.module';
       autoLoadEntities: true,
     }),
     AuthModule,
+    WasteCollectionModule,
     UserModule,
     WaterContractsModule,
-    WaterReadingsModule,
-    EventsModule
+    WaterReadingsModule
   ],
   controllers: [AppController, AuthController],
   providers: [AppService, FirebaseAuthStrategy],
