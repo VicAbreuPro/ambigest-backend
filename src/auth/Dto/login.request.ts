@@ -1,7 +1,9 @@
 import { IsNotEmpty, Matches, IsEmail } from 'class-validator'
 
 export class Login {
-    @IsEmail()
+    @IsEmail({}, {
+      message: 'Invalid email'
+    })
     email: string;
   
     @IsNotEmpty({
