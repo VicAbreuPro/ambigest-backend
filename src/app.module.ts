@@ -6,7 +6,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './User/user.module';
 import { AuthModule } from './auth/auth.module';
-import { WaterContractsModule } from './WaterContractsModule/waterContracts.module';
+import { WaterContractsModule } from './WaterContracts/waterContracts.module';
 
 @Module({
   imports: [
