@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { WaterContractsRepository } from '../Repository/WaterContracts.repository';
 import { CreateContractRequest } from '../Dtos/create-contract.request';
 import { UpdateContractRequest } from '../Dtos/update-contract.request';
@@ -7,7 +7,10 @@ import { UserService } from 'src/User/services/user.service';
 
 @Injectable()
 export class WaterContractService {
-    constructor(private userService: UserService, private waterContractRepository: WaterContractsRepository){}
+    constructor(private waterContractRepository: WaterContractsRepository){}
+
+    @Inject()
+    private readonly userService: UserService;
 
     async getContractByUserFirebaseId(uid: string): Promise<WaterContractEntity>{
         const user = await this.userService.getUserByFirebaseId(uid);
