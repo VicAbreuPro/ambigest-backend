@@ -15,9 +15,9 @@ export class WaterContractsController {
   @HttpCode(200)
   async getContract(@Request() req: any): Promise<WaterContractEntity>{
     try {
-      return await this.waterContractsService.getContractByUserId(req.user.email);
+      return await this.waterContractsService.getContractByUserFirebaseId(req.user.uid);
     } catch (error) {
-      if(error == 'User does not have a contract'){
+      if(error == 'Error: User does not have a contract.'){
         throw new HttpException('User does not have a contract', HttpStatus.NOT_FOUND);
       }
 
@@ -30,9 +30,9 @@ export class WaterContractsController {
   @HttpCode(201)
   async create(@Request() req: any, @Body() requestBody: CreateContractRequest): Promise<any>{
     try {
-      return await this.waterContractsService.createContract(req.user.email, requestBody);
+      return await this.waterContractsService.createContract(req.user.uid, requestBody);
     } catch (error: any) {
-        if(error === 'User already has a contract'){
+        if(error === 'Error: User already has a contract.'){
           throw new HttpException('User already has a contract', HttpStatus.BAD_REQUEST);
         }
 
@@ -45,9 +45,7 @@ export class WaterContractsController {
   @HttpCode(200)
   async updateContract(@Request() req: any, @Body() requestBody: UpdateContractRequest): Promise<any>{
     try {
-      const user = await this.userService.getUser(req.user.email);
-
-      return await this.waterContractsService.updateContract(user._id.toString(), requestBody);
+      return await this.waterContractsService.updateContract(req.user.uid, requestBody);
     } catch (error) {
       throw new HttpException('Server error: ' + error, HttpStatus.SERVICE_UNAVAILABLE);
     }
