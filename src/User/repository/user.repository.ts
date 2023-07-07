@@ -23,6 +23,14 @@ export class UserRepository {
         });
     }
 
+    async getUserByFirebaseId(uid: string): Promise<UserEntity>{
+        return await this.dataSource.manager.findOne( UserEntity, {
+            where: {
+                firebase_id: uid
+            }
+        });
+    }
+
     async createUser(user: UserEntity): Promise<UserEntity>{
         
         const result = await this.dataSource.manager.save(UserEntity, user);
@@ -35,7 +43,7 @@ export class UserRepository {
     }
 
     async updateEmailProperty(userId: ObjectId, email: string): Promise<UserEntity>{
-        const user = await this.dataSource.manager.findOne(UserEntity, { where: { _id: new ObjectId(userId) } });
+        const user = await this.dataSource.manager.findOne(UserEntity, { where: { _id: userId } });
 
         if (!user) {
             throw new Error('User not found');

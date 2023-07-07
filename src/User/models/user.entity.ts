@@ -1,5 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ObjectId, ObjectIdColumn } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
+import { Entity, Column, ObjectId, ObjectIdColumn } from 'typeorm';
   
 @Entity()
 export class UserEntity {
@@ -7,13 +6,17 @@ export class UserEntity {
     _id: ObjectId;
 
     @Column()
+    firebase_id: string;
+
+    @Column()
     username: string;
 
     @Column()
     email: string;
 
-    constructor(username: string, email: string) {
+    constructor(username: string, email: string, firebase_id: string) {
         this.username = username;
         this.email = email;
+        this.firebase_id = firebase_id;
     }
 }
