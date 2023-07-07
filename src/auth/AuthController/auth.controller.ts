@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post, UseGuards, HttpException, HttpStatus, Query, Headers, Put, Request } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, UseGuards, HttpException, HttpStatus, Headers, Put, Request } from '@nestjs/common';
 import { signInWithEmailAndPassword, sendPasswordResetEmail} from "firebase/auth";
 import { FirebaseAuthGuard } from '../firebase/firebase-auth.guard';
 import firebaseAuth from "src/auth/firebase/firebaseInit";
@@ -8,7 +8,6 @@ import { UserService } from 'src/User/services/user.service';
 import { UpdateUserEmailDto } from '../Dto/update-user-email.request';
 import { RecoverUserPasswordDto } from '../Dto/recover-password.request';
 
-
 @Controller('auth')
 export class AuthController {
     constructor(private UserService: UserService){}
@@ -16,19 +15,23 @@ export class AuthController {
     @Post('/login')
     @HttpCode(200)
     async login(@Body() requestBody: Login): Promise<any> {
-
         let token: string;
-        let extractedUserEmail: string;
-        
+
         try {
             const userCredential = await signInWithEmailAndPassword(firebaseAuth, requestBody.email, requestBody.password);
+            const checkUser = await this.UserService.getUserByFirebaseId(userCredential.user.uid);
 
-            const checkUser = await this.UserService.getUser(requestBody.email);
-
+            // Case when its first user login after register
             if(userCredential.user.emailVerified == true && ! checkUser){
-                await this.UserService.createUserOnDatabase(requestBody.email);
+                await this.UserService.createUserOnDatabase(userCredential.user.uid, requestBody.email);
+            
+            // Case when user is registered on firebase isn't verify the email
             } else if( userCredential.user.emailVerified == false){
                 throw new Error('You must verify your email!');
+            
+            // Case when user update the email, this case occurs only after email verification, then update on database.
+            } else if(userCredential.user.emailVerified == true && checkUser && checkUser.email != userCredential.user.email){
+                await this.UserService.updateUserEmail(checkUser._id, userCredential.user.email);
             }
 
             token = await userCredential.user.getIdToken();
@@ -70,18 +73,28 @@ export class AuthController {
     @Put('/change-email')
     @UseGuards(FirebaseAuthGuard)
     @HttpCode(204)
-    async updateUsername(@Request() req: any, @Body() requestBody: UpdateUserEmailDto): Promise<any> {
-        try {
-            await this.UserService.updateUserEmail(req.user.uid, requestBody.password, req.user.email, requestBody.email);
+    async updateEmail(@Request() req: any, @Body() requestBody: UpdateUserEmailDto): Promise<any> {
+        
+        if(req.user.email == requestBody.email){
+            throw new HttpException('The email address must be different than the current one' , HttpStatus.BAD_REQUEST);
+        }
 
-            await auth().revokeRefreshTokens(req.user.uid);
+        try{
+            await this.UserService.updateUserEmailFirebase(requestBody.password, req.user.email, requestBody.email);
         } catch (error) {
             if(error == 'Error: User not found'){
                 throw new HttpException('User not found', HttpStatus.NOT_FOUND);
             }
 
-            if(error == 'Error: The email address is already in use by another account.')
-            throw new HttpException('The email address is already in use by another account.' , HttpStatus.FORBIDDEN);
+            if(error == 'Error: The email address is already in use by another account.'){
+                throw new HttpException('The email address is already in use by another account.' , HttpStatus.BAD_REQUEST);
+            }
+
+            if(error == 'FirebaseError: Firebase: Error (auth/wrong-password).'){
+                throw new HttpException('Wrong password' , HttpStatus.BAD_REQUEST);
+            }
+
+            throw new HttpException('Error: ' + error , HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

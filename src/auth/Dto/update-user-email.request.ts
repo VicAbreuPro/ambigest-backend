@@ -4,9 +4,6 @@ export class UpdateUserEmailDto{
     @IsEmail({}, {
         message: 'Email is invalid format!',
     })
-    @IsNotEmpty({
-        message: 'Email is required!',
-    })
     email: string;
 
     @IsNotEmpty({
