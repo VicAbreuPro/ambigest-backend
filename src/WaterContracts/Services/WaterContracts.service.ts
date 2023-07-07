@@ -9,9 +9,8 @@ import { UserService } from 'src/User/services/user.service';
 export class WaterContractService {
     constructor(private userService: UserService, private waterContractRepository: WaterContractsRepository){}
 
-    async getContractByUserId(email: string): Promise<any>{
-        const user = await this.userService.getUser(email);
-
+    async getContractByUserFirebaseId(uid: string): Promise<any>{
+        const user = await this.userService.getUserByFirebaseId(uid);
         const contract = await this.waterContractRepository.getContractByUserId(user._id.toString());
 
         if(!contract){
@@ -21,12 +20,12 @@ export class WaterContractService {
         return contract;
     }
 
-    async createContract(email: string, request: CreateContractRequest): Promise<WaterContractEntity>{
-        const user = await this.userService.getUser(email);
+    async createContract(uid: string, request: CreateContractRequest): Promise<WaterContractEntity>{
+        const user = await this.userService.getUserByFirebaseId(uid);
         const checkUserContract = await this.waterContractRepository.getContractByUserId(user._id.toString());
         
         if(checkUserContract){
-            throw new Error('User already has a contract');
+            throw new Error('User already has a contract.');
         }
 
         let newContract = new WaterContractEntity(user._id.toString(), request.value_per_m3);
@@ -34,8 +33,10 @@ export class WaterContractService {
         return await this.waterContractRepository.upsertContract(newContract);
     }
 
-    async updateContract(user_id: string, request: UpdateContractRequest): Promise<any>{
-        const waterContract = await this.waterContractRepository.getContractByUserId(user_id);
+    async updateContract(uid: string, request: UpdateContractRequest): Promise<any>{
+        const user = await this.userService.getUserByFirebaseId(uid);
+
+        const waterContract = await this.waterContractRepository.getContractByUserId(user._id.toString());
 
         waterContract.value_per_m3 = request.value_per_m3;
         
