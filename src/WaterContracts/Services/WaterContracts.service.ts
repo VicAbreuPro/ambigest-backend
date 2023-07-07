@@ -9,7 +9,7 @@ import { UserService } from 'src/User/services/user.service';
 export class WaterContractService {
     constructor(private userService: UserService, private waterContractRepository: WaterContractsRepository){}
 
-    async getContractByUserFirebaseId(uid: string): Promise<any>{
+    async getContractByUserFirebaseId(uid: string): Promise<WaterContractEntity>{
         const user = await this.userService.getUserByFirebaseId(uid);
         const contract = await this.waterContractRepository.getContractByUserId(user._id.toString());
 
