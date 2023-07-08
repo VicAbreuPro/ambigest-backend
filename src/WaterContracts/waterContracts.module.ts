@@ -17,6 +17,12 @@ import { UserRepository } from 'src/User/repository/user.repository';
         WaterContractService,
         WaterContractsRepository
     ],
-    controllers: [WaterContractsController]
+    controllers: [
+        WaterContractsController
+    ],
+    exports: [
+        WaterContractService,
+        WaterContractsRepository,
+    ]
 })
 export class WaterContractsModule {}
