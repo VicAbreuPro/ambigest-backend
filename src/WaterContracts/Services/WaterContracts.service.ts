@@ -14,7 +14,17 @@ export class WaterContractService {
 
     async getContractByUserFirebaseId(uid: string): Promise<WaterContractEntity>{
         const user = await this.userService.getUserByFirebaseId(uid);
-        const contract = await this.waterContractRepository.getContractByUserId(user._id.toString());
+        const contract = await this.getContractByUserId(user._id.toString());
+
+        if(!contract){
+            throw new Error("User does not have a contract.");
+        }
+
+        return contract;
+    }
+
+    async getContractByUserId(user_id: string): Promise<WaterContractEntity>{
+        const contract = await this.waterContractRepository.getContractByUserId(user_id);
 
         if(!contract){
             throw new Error("User does not have a contract.");

@@ -29,7 +29,8 @@ export class WaterReadingsController {
       if(error == 'Error: User already registered a reading this month.'){
         throw new HttpException('User already registered a reading this month.', HttpStatus.BAD_REQUEST);
       }
-      throw new HttpException('Server error: ' + error, HttpStatus.SERVICE_UNAVAILABLE);
+
+      throw new HttpException('Server error: ' + error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
