@@ -10,6 +10,9 @@ export class WaterReadingsRepository {
     getAllReadingsByUserId(user_id: string): Promise<WaterReadingEntity[]>{
         return this.dataSource.manager.find(WaterReadingEntity, {
             select: ['amount', 'reading_date'],
+            order: {
+                reading_date: 'ASC'
+            },
             where: {
                 user_id
             }
