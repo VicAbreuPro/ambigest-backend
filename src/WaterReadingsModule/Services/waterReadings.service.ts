@@ -33,20 +33,6 @@ export class WaterReadingsService {
         return await this.waterReadingsRepository.upsertWaterReading(waterReading);
     }
 
-    async updateReadingAmount(reading_id: string, user_firebase_id: string, amount: number): Promise<any>{
-        const user = await this.userService.getUserByFirebaseId(user_firebase_id);
-
-        const waterReading = await this.waterReadingsRepository.getUserWaterReading(reading_id, user._id.toString());
-
-        if(! waterReading){
-            throw new Error("Water reading not found!")
-        }
-
-        waterReading.amount = amount;
-
-        return await this.waterReadingsRepository.upsertWaterReading(waterReading);
-    }
-
     async deleteReading(reading_id: string, user_firebase_id: string): Promise<any>{
         const user = await this.userService.getUserByFirebaseId(user_firebase_id);
 
