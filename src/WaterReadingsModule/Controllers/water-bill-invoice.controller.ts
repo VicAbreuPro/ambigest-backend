@@ -20,7 +20,7 @@ export class WaterBillInvoiceController {
             return invoices;
         } catch (error) {
             if(error == 'Error: Not found'){
-                throw new HttpException('Any invoices found, please check if you have an confugred contract, or add new water reading data' + error, HttpStatus.NOT_FOUND);
+                throw new HttpException('No invoices found, please check if you have an confugred contract, or add new water reading data' + error, HttpStatus.NOT_FOUND);
             }
 
             throw new HttpException('Server error: ' + error, HttpStatus.INTERNAL_SERVER_ERROR);

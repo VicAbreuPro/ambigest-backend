@@ -30,6 +30,10 @@ export class WaterReadingsController {
         throw new HttpException('User already registered a reading this month.', HttpStatus.BAD_REQUEST);
       }
 
+      if(error == 'Error: The new water reading date must be after than the last water reading.'){
+        throw new HttpException('The new water reading date must be after than the last water reading.', HttpStatus.BAD_REQUEST);
+      }
+
       throw new HttpException('Server error: ' + error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
