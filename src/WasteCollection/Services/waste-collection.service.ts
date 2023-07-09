@@ -61,7 +61,7 @@ export class WasteCollectionService {
             let pickupDateObject = new Date(pickup.pickup_at);
 
             if(pickupDateObject.getFullYear() == inputDateObject.getFullYear() && pickupDateObject.getMonth() + 1 == inputDateObject.getMonth() + 1 && pickupDateObject.getDate() == inputDateObject.getDate()){
-                if(pickup._id != userWasteCollection._id){
+                if(pickup._id.toString() != userWasteCollection._id.toString()){
                     throw new Error('Date already picked');
                 }
             }

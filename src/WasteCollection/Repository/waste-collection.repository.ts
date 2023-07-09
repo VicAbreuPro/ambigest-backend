@@ -8,7 +8,7 @@ export class WasteCollectionRepository {
 
     async getWasteCollection(id: ObjectId): Promise<WasteCollectionEntity> {
         return await this.dataSource.manager.findOne(WasteCollectionEntity, {
-            select: ['type', "latitude", "longitude", "pickup_at", "time_of_day"],
+            select: ['type', "latitude", "longitude", "pickup_at", "time_of_day", "userId"],
             where: {
                 _id: id
             },
