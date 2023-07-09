@@ -111,4 +111,43 @@ export class WaterReadingsService {
 
         return await this.waterBillInvoiceRepository.getAllInvoices(user._id.toString());
     }
+
+    async countConsumptionEconomy(user_firebase_id: string): Promise<string>{
+        const waterReadings = await this.getWaterReadingsByUserFirebaseId(user_firebase_id);
+        const invoices = await this.getInvoicesByUser(user_firebase_id);
+
+        let lastMonthConsumption: number = 0;
+        let previousMonthConsumption: number = 0;
+        let economyPercent: number = 0;
+        let consumeIncreasedLastMonth: number = 0;
+        let totalConsume: number = 0;
+        let totalInvoices: number = 0;
+
+        if(waterReadings && waterReadings.length > 0){
+            invoices.forEach(invoice => {
+                totalInvoices += invoice.billing_value;
+            })
+            waterReadings.forEach(readings => {
+                totalConsume += readings.amount;
+            });
+
+            lastMonthConsumption = waterReadings[waterReadings.length - 1].amount;
+            previousMonthConsumption = waterReadings[waterReadings.length - 2].amount;
+
+            if(lastMonthConsumption < previousMonthConsumption){
+                economyPercent = Math.abs(Math.round(((lastMonthConsumption - previousMonthConsumption) / previousMonthConsumption) * 100));
+            }
+            
+            consumeIncreasedLastMonth = waterReadings[waterReadings.length - 1].amount - waterReadings[waterReadings.length - 2].amount;
+        }
+
+        let data = {
+            consume_last_month: consumeIncreasedLastMonth,
+            economy_percent: economyPercent,
+            total_consume: totalConsume,
+            total_invoices_value: totalInvoices
+        }
+
+        return JSON.stringify(data)
+    }
 }

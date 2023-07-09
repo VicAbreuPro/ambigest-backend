@@ -8,6 +8,16 @@ import { FirebaseAuthGuard } from 'src/auth/firebase/firebase-auth.guard';
 export class WaterReadingsController {
   constructor(private readonly waterReadingsService: WaterReadingsService) {}
 
+  @Get('/statistics')
+  @UseGuards(FirebaseAuthGuard)
+  async getWaterReadingsStatistics(@Request() req: any): Promise<string> {
+    try{
+      return await this.waterReadingsService.countConsumptionEconomy(req.user.uid);
+    }catch(error){
+      throw new HttpException('Server error: ' + error, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+  }
+
   @Get('/')
   @UseGuards(FirebaseAuthGuard)
   async getWaterReadings(@Request() req: any): Promise<any> {
