@@ -29,16 +29,17 @@ export class WaterReadingsService {
     async createReading(user_firebase_id: string, amount: number, date: Date): Promise<any>{
         const user = await this.userService.getUserByFirebaseId(user_firebase_id);
         const checkWaterReadings = await this.waterReadingsRepository.getAllReadingsByUserId(user._id.toString());
-        const lastReading = checkWaterReadings[checkWaterReadings.length - 1];
 
-        let dateOfLasteReading = new Date(lastReading.reading_date);
-        let inputDate = new Date(date);
+        if(checkWaterReadings.length > 0){   
+            const lastReading = checkWaterReadings[checkWaterReadings.length - 1];
 
-        if(dateOfLasteReading.getFullYear() > inputDate.getFullYear() || dateOfLasteReading.getFullYear() == inputDate.getFullYear() && dateOfLasteReading.getMonth() + 1 > inputDate.getMonth() +1 ){
-            throw new Error("The new water reading date must be after than the last water reading.");
-        }
+            let dateOfLasteReading = new Date(lastReading.reading_date);
+            let inputDate = new Date(date);
 
-        if(checkWaterReadings){            
+            if(dateOfLasteReading.getFullYear() > inputDate.getFullYear() || dateOfLasteReading.getFullYear() == inputDate.getFullYear() && dateOfLasteReading.getMonth() + 1 > inputDate.getMonth() +1 ){
+                throw new Error("The new water reading date must be after than the last water reading.");
+            }
+
             checkWaterReadings.forEach(reading => {
                 let readingDate = new Date(reading.reading_date);
 
