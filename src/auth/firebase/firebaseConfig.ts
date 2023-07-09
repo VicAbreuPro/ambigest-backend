@@ -1,3 +1,5 @@
+const { privateKey } = JSON.parse(process.env['FIREBASE_CONFIG_PRIVATE_KEY'])
+
 const config = {
     "api_key": process.env['FIREBASE_CONFIG_API_KEY'],
     "app_id": process.env['FIREBASE_CONFIG_APP_ID'],
@@ -9,7 +11,7 @@ const config = {
     "client_x509_cert_url": process.env['FIREBASE_CONFIG_CLIENT_CERTIFICATE_URL'],
     "measurement_id": process.env['FIREBASE_CONFIG_MEASUREMENT_ID'],
     "message_sender_id": process.env['FIREBASE_CONFIG_MESSAGE_SENDER_ID'],
-    "private_key": process.env['FIREBASE_CONFIG_PRIVATE_KEY'],
+    "private_key": privateKey,
     "private_key_id": process.env['FIREBASE_CONFIG_PRIVATE_KEY_ID'],
     "project_id": process.env['FIREBASE_CONFIG_PROJECT_ID'],
     "type": process.env['FIREBASE_CONFIG_TYPE'],
