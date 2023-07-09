@@ -13,9 +13,10 @@ import { WaterReadingsModule } from './WaterReadingsModule/waterReadings.module'
   imports: [
     TypeOrmModule.forRoot({
       type: 'mongodb',
-      host: 'mongodb',
-      port: 27017,
-      database: 'ambigestDb',
+      url: process.env['MONGO_URL'],
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      database: process.env['MONGO_DB'],
       entities: [],
       synchronize: false,
       autoLoadEntities: true,
