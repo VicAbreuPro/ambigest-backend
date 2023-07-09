@@ -8,6 +8,7 @@ import { UserModule } from './User/user.module';
 import { AuthModule } from './auth/auth.module';
 import { WaterContractsModule } from './WaterContracts/waterContracts.module';
 import { WaterReadingsModule } from './WaterReadingsModule/waterReadings.module';
+import { WasteCollectionModule } from './WasteCollection/waste-collection.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { WaterReadingsModule } from './WaterReadingsModule/waterReadings.module'
       autoLoadEntities: true,
     }),
     AuthModule,
+    WasteCollectionModule,
     UserModule,
     WaterContractsModule,
     WaterReadingsModule
