@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, Param, Res, Delete, UseGuards, HttpCode, HttpException, HttpStatus, Request, Query } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Res, Delete, UseGuards, HttpCode, HttpException, HttpStatus, Request, Query, BadRequestException } from '@nestjs/common';
 import { CreateWasteCollectionRequestDto } from '../Dtos/create-waste-collection.request';
 import { WasteCollectionService } from '../Services/waste-collection.service';
 import { UpdateWasteCollectionRequestDto } from '../Dtos/update-waste-collection.request';
@@ -81,7 +81,12 @@ export class WasteCollectionController {
     @UseGuards(FirebaseAuthGuard)
     @HttpCode(204)
     async deleteEventById(@Query('id') wasteCollectionId: string): Promise<any>{
-        try {
+        
+        if(!wasteCollectionId || wasteCollectionId == ""){
+            throw new BadRequestException("wasteCollectionId must be not empty!");
+        };
+
+        try{
             return await this.WasteCollectionService.deleteWasteCollection(wasteCollectionId);
         }catch(error) {
             if(error == 'Error: Waste-collection not found!'){

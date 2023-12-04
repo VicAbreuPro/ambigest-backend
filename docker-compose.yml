@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  mongodb:
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ambigestAdmin
+      MONGO_INITDB_ROOT_PASSWORD: ambigestAdmin
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro # Mount the initialization script
+
+  ##nest-api:
+  ##  build:
+  ##    context: .
+  ##    dockerfile: dockerfile
+  ##  depends_on:
+  ##    - mongodb
+  ##  ports:
+  ##    - "3000:3000"
+  ##  env_file:
+  ##    - ./.env
+  ##  
+
+volumes:
+  mongodb_data:

@@ -14,10 +14,12 @@ import { WasteCollectionModule } from './WasteCollection/waste-collection.module
   imports: [
     TypeOrmModule.forRoot({
       type: 'mongodb',
-      url: process.env['MONGO_URL'],
+      host: process.env['DATABASE_HOST'] ?? 'localhost',
+      username: process.env['DATABASE_USERNAME'] ?? "ambigestTestAdmin",
+      password: process.env['DATABASE_PASSWORD'] ?? "ambigestTestAdmin",
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      database: process.env['MONGO_DB'],
+      database: process.env['DATABASE_NAME'] ?? "testDB",
       entities: [],
       synchronize: false,
       autoLoadEntities: true,

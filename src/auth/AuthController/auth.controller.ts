@@ -19,8 +19,9 @@ export class AuthController {
 
         try {
             const userCredential = await signInWithEmailAndPassword(firebaseAuth, requestBody.email, requestBody.password);
-            const checkUser = await this.UserService.getUserByFirebaseId(userCredential.user.uid);
 
+            const checkUser = await this.UserService.getUserByFirebaseId(userCredential.user.uid);
+            
             // Case when its first user login after register
             if(userCredential.user.emailVerified == true && ! checkUser){
                 await this.UserService.createUserOnDatabase(userCredential.user.uid, requestBody.email);

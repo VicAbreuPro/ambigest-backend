@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Body, Request, UseGuards, HttpCode, HttpStatus, HttpException, Put, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Request, UseGuards, HttpCode, HttpStatus, HttpException, Delete, Query } from '@nestjs/common';
 import { WaterReadingsService } from '../Services/waterReadings.service';
 import { CreateReadingRequest } from '../Dtos/create-reading.request';
-import { UpdateReadingRequest } from '../Dtos/update-reading.request';
 import { FirebaseAuthGuard } from 'src/auth/firebase/firebase-auth.guard';
 
 @Controller('water-readings')
